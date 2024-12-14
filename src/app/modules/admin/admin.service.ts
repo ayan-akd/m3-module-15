@@ -19,7 +19,7 @@ const getAllAdminFromDB = async (query: Record<string, unknown>) => {
 };
 
 const getSingleAdminFromDB = async (id: string) => {
-  const result = await Admin.findOne({ id });
+  const result = await Admin.findById(id);
   return result;
 };
 
@@ -35,7 +35,7 @@ const updateAdminFromDB = async (id: string, payload: Partial<TAdmin>) => {
     }
   }
 
-  const result = await Admin.findOneAndUpdate({ id }, modifiedUpdatedData, {
+  const result = await Admin.findByIdAndUpdate(id, modifiedUpdatedData, {
     new: true,
     runValidators: true,
   });
@@ -43,7 +43,7 @@ const updateAdminFromDB = async (id: string, payload: Partial<TAdmin>) => {
 };
 
 const deleteAdminFromDB = async (id: string) => {
-  const existingUser = await Admin.findOne({ id });
+  const existingUser = await Admin.findById(id);
   if (!existingUser) {
     throw new AppError(httpStatus.NOT_FOUND, 'Admin not found');
   }
@@ -51,16 +51,17 @@ const deleteAdminFromDB = async (id: string) => {
 
   try {
     session.startTransaction();
-    const deletedAdmin = await Admin.findOneAndUpdate(
-      { id },
+    const deletedAdmin = await Admin.findByIdAndUpdate(
+      id,
       { isDeleted: true },
       { new: true, session },
     );
     if (!deletedAdmin) {
       throw new AppError(httpStatus.BAD_REQUEST, 'Failed to delete admin');
     }
-    const deleteUser = await User.findOneAndUpdate(
-      { id },
+    const userId = deletedAdmin.user;
+    const deleteUser = await User.findByIdAndUpdate(
+      userId,
       { isDeleted: true },
       { new: true, session },
     );

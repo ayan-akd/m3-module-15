@@ -8,11 +8,11 @@ const router = express.Router();
 
 router.get('/', AdminControllers.getAllAdmins);
 
-router.get('/:adminId', AdminControllers.getSingleAdmin);
+router.get('/:id', AdminControllers.getSingleAdmin);
 
-router.patch('/:adminId', validateRequest(adminValidations.updateAdminValidationSchema) , AdminControllers.updateAdmin);
+router.patch('/:id', validateRequest(adminValidations.updateAdminValidationSchema) , AdminControllers.updateAdmin);
 
-router.delete('/:adminId', AdminControllers.deleteAdmin);
+router.delete('/:id', AdminControllers.deleteAdmin);
 
 
 export const AdminRoutes = router;
