@@ -5,13 +5,18 @@ import { TStudent } from '../student/student.interface';
 import { Student } from '../student/student.model';
 import { TUser } from './user.interface';
 import { User } from './user.model';
-import { generateAdminId, generateFacultyId, generateStudentId } from './user.utils';
+import {
+  generateAdminId,
+  generateFacultyId,
+  generateStudentId,
+} from './user.utils';
 import { AcademicSemester } from '../academicSemester/academicSemester.model';
 import mongoose from 'mongoose';
 import { AcademicDepartment } from '../academicDepartment/academicDepartment.model';
 import { Faculty } from '../faculty/faculty.model';
 import { TFaculty } from '../faculty/faculty.interface';
 import { Admin } from '../admin/admin.model';
+import { TAdmin } from '../admin/admin.interface';
 
 const createStudentIntoDB = async (password: string, payload: TStudent) => {
   // create a user object
@@ -49,7 +54,9 @@ const createStudentIntoDB = async (password: string, payload: TStudent) => {
     payload.user = newUser[0]._id; //reference _id
 
     //create a student (transaction-2)
+    console.log('payload', payload);
     const newStudent = await Student.create([payload], { session });
+    console.log('hit');
     if (!newStudent) {
       throw new AppError(httpStatus.BAD_REQUEST, 'Failed to create student');
     }
@@ -59,7 +66,7 @@ const createStudentIntoDB = async (password: string, payload: TStudent) => {
   } catch (err) {
     await session.abortTransaction();
     await session.endSession();
-    throw new AppError(httpStatus.BAD_REQUEST, 'Failed to create student');
+    throw err;
   }
 };
 const createFacultyIntoDB = async (password: string, payload: TFaculty) => {
@@ -83,7 +90,7 @@ const createFacultyIntoDB = async (password: string, payload: TFaculty) => {
   try {
     session.startTransaction();
     //set manually generated it
-  
+
     userData.id = await generateFacultyId();
 
     // create a user (transaction-1)
@@ -108,10 +115,10 @@ const createFacultyIntoDB = async (password: string, payload: TFaculty) => {
   } catch (err) {
     await session.abortTransaction();
     await session.endSession();
-    throw new AppError(httpStatus.BAD_REQUEST, 'Failed to create faculty');
+    throw err;
   }
 };
-const createAdminIntoDB = async (password: string, payload: TFaculty) => {
+const createAdminIntoDB = async (password: string, payload: TAdmin) => {
   // create a user object
   const userData: Partial<TUser> = {};
 
@@ -126,7 +133,7 @@ const createAdminIntoDB = async (password: string, payload: TFaculty) => {
   try {
     session.startTransaction();
     //set manually generated it
-  
+
     userData.id = await generateAdminId();
 
     // create a user (transaction-1)
@@ -151,7 +158,7 @@ const createAdminIntoDB = async (password: string, payload: TFaculty) => {
   } catch (err) {
     await session.abortTransaction();
     await session.endSession();
-    throw new AppError(httpStatus.BAD_REQUEST, 'Failed to create admin');
+    throw err;
   }
 };
 
